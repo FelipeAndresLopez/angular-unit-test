@@ -4,6 +4,7 @@ import { HttpClientTestingModule, HttpTestingController } from "@angular/common/
 import { environment } from "../../environments/environment";
 import { CreateProductDTO, Product, UpdateProductDTO } from "../models/product.model";
 import { generateProducts, generateOneProduct } from "../models/product.mock";
+import { HttpStatusCode } from "@angular/common/http";
 
 fdescribe('ProductService', () => {
   let productService: ProductsService
@@ -178,6 +179,66 @@ fdescribe('ProductService', () => {
       expect(req.request.body).toEqual(dto)
 
       req.flush(dummyProduct)
+    })
+  })
+
+  describe('test for delete product', () => {
+    it('should delete a product', (doneFn) => {
+      const mockData = true
+      const productToDeleteId = '1'
+
+      productService.delete(productToDeleteId).subscribe((isDeletedProduct) => {
+        expect(isDeletedProduct).toEqual(true)
+        doneFn()
+      })
+
+      // Api config
+      const apiUrl = `${environment.API_URL}/api/v1/${productToDeleteId}`
+      const testRequest = httpMock.expectOne(apiUrl)
+      expect(testRequest.request.method).toEqual('DELETE')
+      testRequest.flush(mockData)
+
+    })
+
+  })
+
+  describe('test for getOne method', () => {
+    it('should return one product', (doneFn) => {
+      const dummyProduct = generateOneProduct()
+      const productId = dummyProduct.id
+
+      productService.getOne(productId).subscribe((product) => {
+        expect(product.id).toEqual(productId)
+        doneFn()
+      })
+
+      const apiUrl = `${environment.API_URL}/api/v1/products/${productId}`
+      const testRequest = httpMock.expectOne(apiUrl)
+      expect(testRequest.request.method).toEqual('GET')
+      testRequest.flush(dummyProduct)
+    })
+
+    it('should return a message error when status code is 404', (doneFn) => {
+      const dummyProduct = generateOneProduct()
+      const productId = dummyProduct.id
+      const msgError = '404 message'
+      const mockError = {
+        status: HttpStatusCode.NotFound,
+        statusText: msgError
+      }
+
+      productService.getOne(productId).subscribe({
+        error: (error) => {
+          // assert
+          expect(error).toEqual('El producto no existe')
+          doneFn()
+        }
+      })
+
+      const apiUrl = `${environment.API_URL}/api/v1/products/${productId}`
+      const testRequest = httpMock.expectOne(apiUrl)
+      expect(testRequest.request.method).toEqual('GET')
+      testRequest.flush(msgError, mockError)
     })
   })
 })
