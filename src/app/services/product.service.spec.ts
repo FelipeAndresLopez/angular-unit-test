@@ -6,7 +6,7 @@ import { CreateProductDTO, Product, UpdateProductDTO } from "../models/product.m
 import { generateProducts, generateOneProduct } from "../models/product.mock";
 import { HttpStatusCode } from "@angular/common/http";
 
-fdescribe('ProductService', () => {
+describe('ProductService', () => {
   let productService: ProductsService
   let httpMock: HttpTestingController
 
