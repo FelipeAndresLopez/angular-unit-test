@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PersonComponent } from './person.component';
-import { DebugElement } from '@angular/core';
+import { Component, DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { Person } from '../../models/person.model';
 
-fdescribe('PersonComponent', () => {
+
+describe('PersonComponent', () => {
   let component: PersonComponent;
   let fixture: ComponentFixture<PersonComponent>;
 
@@ -101,3 +102,59 @@ fdescribe('PersonComponent', () => {
     expect(selectedPerson).toEqual(expectedPerson)
   })
 });
+
+@Component({
+  template: `<app-person [person]="person" (onSelected)="onSelected($event)"/>`
+})
+class HostComponent {
+  person = new Person('Santi', 'Molina', 12, 40, 1.5)
+  selectedPerson: Person | undefined
+
+  onSelected(person: Person) {
+    this.selectedPerson = person
+  }
+}
+
+describe('PersonComponent from HostComponent', () => {
+  let component: HostComponent;
+  let fixture: ComponentFixture<HostComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [HostComponent],
+      imports: [PersonComponent]
+    })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(HostComponent);
+    component = fixture.componentInstance;
+    component.person = new Person('John', 'Doe', 30, 75, 1.75);
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should display person name', () => {
+    // Arrange
+    const expectedName = component.person.name
+    const personDebugElement = fixture.debugElement.query(By.css('app-person h2'))
+    const h2Element = personDebugElement.nativeElement
+    // Act
+    fixture.detectChanges()
+    // Assert
+    expect(h2Element.textContent).toContain(expectedName)
+  })
+
+  it('should raise selected event when is clicked', () => {
+    // Arrange
+    const expectedName = component.person.name
+    const personDebugElement = fixture.debugElement.query(By.css('app-person .btn-choose'))
+    // Act
+    personDebugElement.triggerEventHandler('click', null)
+    fixture.detectChanges()
+    // Assert
+    expect(component.selectedPerson).toEqual(component.person)
+  })
+})
