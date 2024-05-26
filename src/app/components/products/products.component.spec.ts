@@ -6,8 +6,9 @@ import { ProductsService } from '../../services/product.service';
 import { generateProducts } from '../../models/product.mock';
 import { defer, of } from 'rxjs';
 import { ValueService } from '../../services/value.service';
+import { By } from '@angular/platform-browser';
 
-fdescribe('ProductsComponent', () => {
+describe('ProductsComponent', () => {
   let component: ProductsComponent;
   let fixture: ComponentFixture<ProductsComponent>;
   let productService: jasmine.SpyObj<ProductsService>
@@ -57,8 +58,9 @@ fdescribe('ProductsComponent', () => {
       // Arrange
       const productsMock = generateProducts()
       productService.getAll.and.returnValue(defer(() => Promise.resolve(productsMock)))
+      const getAllProductsButtonDE = fixture.debugElement.query(By.css('button.get-products-btn'))
       // Act
-      component.getAllProducts()
+      getAllProductsButtonDE.triggerEventHandler('click')
       fixture.detectChanges(); // ngOnInit
 
       expect(component.status).toEqual('loading')
@@ -71,8 +73,9 @@ fdescribe('ProductsComponent', () => {
     it('should change status "loading" to "error"', fakeAsync(() => {
       // Arrange
       productService.getAll.and.returnValue(defer(() => Promise.reject(new Error('server error'))))
+      const getAllProductsButtonDE = fixture.debugElement.query(By.css('button.get-products-btn'))
       // Act
-      component.getAllProducts()
+      getAllProductsButtonDE.triggerEventHandler('click')
       fixture.detectChanges(); // ngOnInit
 
       expect(component.status).toEqual('loading')
@@ -97,6 +100,26 @@ fdescribe('ProductsComponent', () => {
       expect(component.rta).toEqual(mockMsg)
       expect(valueService.getPromiseValue).toHaveBeenCalled()
     })
+
+
+    it('should display "my mock msg" in a HTMl Element', fakeAsync(() => {
+      // Arrange
+      const mockMsg = 'my mock msg'
+      valueService.getPromiseValue.and.returnValue(Promise.resolve(mockMsg))
+      const buttonDebugElement = fixture.debugElement.query(By.css('button.promise-btn'))
+
+      // Act
+      buttonDebugElement.triggerEventHandler('click', null)
+      tick()
+      fixture.detectChanges()
+      const pElement: HTMLElement = fixture.debugElement.query(By.css('p.paragraph')).nativeElement
+
+
+      // Assert
+      expect(component.rta).toEqual(mockMsg)
+      expect(valueService.getPromiseValue).toHaveBeenCalled()
+      expect(pElement.textContent).toEqual(mockMsg)
+    }))
   });
 
 
