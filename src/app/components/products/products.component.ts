@@ -15,6 +15,9 @@ export class ProductsComponent {
 
   private productService = inject(ProductsService);
   products: Product[] = [];
+  limit = 10
+  offset = 0
+  status: 'loading' | 'success' | 'error' | 'init' = 'init'
 
   ngOnInit(): void {
 
@@ -23,9 +26,22 @@ export class ProductsComponent {
   }
 
   getAllProducts() {
-    this.productService.getAll().subscribe(products => {
-      this.products = products
-    })
+    this.status = 'loading'
+    this.productService.getAll(this.limit, this.offset)
+      .subscribe({
+        next: (products) => {
+          this.products = [...this.products, ...products]
+          this.status = 'success'
+          this.offset += this.limit
+        },
+        error:
+          error => {
+            setTimeout(() => {
+              this.products = []
+              this.status = 'error'
+            }, 1000);
+          }
+      })
   }
 
 

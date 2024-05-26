@@ -6,4 +6,10 @@
       [product]="product">
     </app-product>
   </div>
+  <button (click)="getAllProducts()" [disabled]="status  === 'loading'">
+    <span *ngIf="status  === 'loading'">Loading</span>
+    <span *ngIf="status  === 'error'">Error</span>
+    <span *ngIf="status  === 'init' || status === 'success'">Load More</span>
+
+  </button>
 </section>

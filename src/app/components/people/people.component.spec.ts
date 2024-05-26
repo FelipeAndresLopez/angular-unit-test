@@ -5,7 +5,7 @@ import { PersonComponent } from '../person/person.component';
 import { Person } from '../../models/person.model';
 import { By } from '@angular/platform-browser';
 
-fdescribe('PeopleComponent', () => {
+describe('PeopleComponent', () => {
   let component: PeopleComponent;
   let fixture: ComponentFixture<PeopleComponent>;
 
@@ -38,7 +38,7 @@ fdescribe('PeopleComponent', () => {
 
   })
 
-  fit('should display selected person', () => {
+  it('should display selected person', () => {
     const personComponent = fixture.debugElement.query(By.css('app-person .btn-choose'));
     personComponent.triggerEventHandler('click', null);
     fixture.detectChanges()
