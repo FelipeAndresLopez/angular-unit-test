@@ -3,6 +3,7 @@ import { ProductsService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
 import { CommonModule } from '@angular/common';
 import { ProductComponent } from '../product/product.component';
+import { ValueService } from '../../services/value.service';
 
 @Component({
   selector: 'app-products',
@@ -14,10 +15,12 @@ import { ProductComponent } from '../product/product.component';
 export class ProductsComponent {
 
   private productService = inject(ProductsService);
+  private valueService = inject(ValueService)
   products: Product[] = [];
   limit = 10
   offset = 0
   status: 'loading' | 'success' | 'error' | 'init' = 'init'
+  rta = ''
 
   ngOnInit(): void {
 
@@ -44,5 +47,8 @@ export class ProductsComponent {
       })
   }
 
-
+  async callPromise() {
+    const rta = await this.valueService.getPromiseValue()
+    this.rta = rta
+  }
 }

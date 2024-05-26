@@ -5,23 +5,30 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ProductsService } from '../../services/product.service';
 import { generateProducts } from '../../models/product.mock';
 import { defer, of } from 'rxjs';
+import { ValueService } from '../../services/value.service';
 
 fdescribe('ProductsComponent', () => {
   let component: ProductsComponent;
   let fixture: ComponentFixture<ProductsComponent>;
   let productService: jasmine.SpyObj<ProductsService>
+  let valueService: jasmine.SpyObj<ValueService>
 
   beforeEach(async () => {
     const productServiceSpy = jasmine.createSpyObj('ProductService', ['getAll'])
+    const valueServiceSpy = jasmine.createSpyObj('valueService', ['getPromiseValue'])
     await TestBed.configureTestingModule({
       imports: [ProductsComponent, HttpClientTestingModule],
-      providers: [{ provide: ProductsService, useValue: productServiceSpy }]
+      providers: [
+        { provide: ProductsService, useValue: productServiceSpy },
+        { provide: ValueService, useValue: valueServiceSpy }
+      ]
     })
       .compileComponents();
 
     fixture = TestBed.createComponent(ProductsComponent);
     component = fixture.componentInstance;
     productService = TestBed.inject(ProductsService) as jasmine.SpyObj<ProductsService>
+    valueService = TestBed.inject(ValueService) as jasmine.SpyObj<ValueService>
     const productsMock = generateProducts()
     productService.getAll.and.returnValue(of(productsMock))
     fixture.detectChanges(); // ngOnInit
@@ -75,5 +82,22 @@ fdescribe('ProductsComponent', () => {
       expect(component.status).toEqual('error')
     }))
   });
+
+  describe('tests for callPromise', () => {
+    it('should call to promise', async () => {
+      // Arrange
+      const mockMsg = 'my mock msg'
+      valueService.getPromiseValue.and.returnValue(Promise.resolve(mockMsg))
+
+      // Act
+      await component.callPromise()
+      fixture.detectChanges()
+
+      // Assert
+      expect(component.rta).toEqual(mockMsg)
+      expect(valueService.getPromiseValue).toHaveBeenCalled()
+    })
+  });
+
 
 });
