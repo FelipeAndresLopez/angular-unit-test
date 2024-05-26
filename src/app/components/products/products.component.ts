@@ -2,11 +2,12 @@ import { Component, inject } from '@angular/core';
 import { ProductsService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
 import { CommonModule } from '@angular/common';
+import { ProductComponent } from '../product/product.component';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ProductComponent],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css'
 })
@@ -22,8 +23,7 @@ export class ProductsComponent {
   }
 
   getAllProducts() {
-    this.productService.getAllSimple().subscribe(products => {
-      console.log(products);
+    this.productService.getAll().subscribe(products => {
       this.products = products
     })
   }
